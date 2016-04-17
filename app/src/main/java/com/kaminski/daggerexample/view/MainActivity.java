@@ -9,6 +9,8 @@ import com.kaminski.daggerexample.R;
 import com.kaminski.daggerexample.api.GitHubService;
 import com.kaminski.daggerexample.api.model.User;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -38,7 +40,12 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Action1<List<User>>() {
                     @Override
                     public void call(List<User> users) {
-                        Log.d("TAG", users.get(0).getLogin());
+                        List<String> names = new ArrayList<>();
+                        for (User user : users) {
+                            names.add(user.getLogin());
+                        }
+
+                        Log.d(MainActivity.class.getSimpleName(), Arrays.toString(names.toArray()));
                     }
                 });
 
