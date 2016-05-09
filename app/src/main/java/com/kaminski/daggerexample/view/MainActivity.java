@@ -1,13 +1,17 @@
 package com.kaminski.daggerexample.view;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.kaminski.daggerexample.App;
 import com.kaminski.daggerexample.R;
-import com.kaminski.daggerexample.api.GitHubService;
 import com.kaminski.daggerexample.api.model.User;
+import com.kaminski.daggerexample.events.UsersListEvent;
+import com.kaminski.daggerexample.presenter.MainPresenter;
+import com.kaminski.daggerexample.util.BaseActivity;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,39 +19,27 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit2.Retrofit;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity implements MainPresenter.Subscriber {
 
     @Inject
-    Retrofit retrofit;
-    @Inject
-    GitHubService gitHubService;
+    MainPresenter mainPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        App.presentersComponent().inject(this);
+        mainPresenter.requestData();
+    }
 
-        App.component().inject(this);
+    @Override
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(UsersListEvent event) {
+        List<String> names = new ArrayList<>();
+        for (User user : event.getUsers()) {
+            names.add(user.getLogin());
+        }
 
-        gitHubService.getUsers()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<User>>() {
-                    @Override
-                    public void call(List<User> users) {
-                        List<String> names = new ArrayList<>();
-                        for (User user : users) {
-                            names.add(user.getLogin());
-                        }
-
-                        Log.d(MainActivity.class.getSimpleName(), Arrays.toString(names.toArray()));
-                    }
-                });
-
+        Log.d(MainActivity.class.getSimpleName(), Arrays.toString(names.toArray()));
     }
 }

@@ -1,7 +1,7 @@
 package com.kaminski.daggerexample.dagger.component;
 
 import com.kaminski.daggerexample.dagger.module.ApiServicesModule;
-import com.kaminski.daggerexample.view.MainActivity;
+import com.kaminski.daggerexample.presenter.MainPresenter;
 
 import javax.inject.Singleton;
 
@@ -14,7 +14,7 @@ import dagger.Component;
 @Component(modules = {ApiServicesModule.class})
 public interface AppComponent {
 
-    void inject(MainActivity mainActivity);
+    void inject(MainPresenter mainPresenter);
 
     final class Initializer {
         public static AppComponent init() {
